@@ -28,17 +28,13 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String extractUsername(String token) {
+    public String extractUsername(String token) { //extraer el nombre del usuario
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
-    }
-
-    public boolean validateToken(String token, User user) { //comprueba si el token de ese usuario sigue siendo válido
-        return extractUsername(token).equals(user.getUsername()) && !isTokenExpired(token);
     }
 
     public boolean isTokenExpired(String token) { //devuelve si el token ha expirado o no

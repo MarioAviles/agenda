@@ -3,6 +3,7 @@ package com.nttdata.agenda.service;
 import com.nttdata.agenda.dto.AuthLoginRequest;
 import com.nttdata.agenda.dto.AuthRequest;
 import com.nttdata.agenda.dto.AuthResponse;
+import com.nttdata.agenda.entity.Task;
 import com.nttdata.agenda.entity.User;
 import com.nttdata.agenda.enums.Role;
 import com.nttdata.agenda.repository.UserRepository;
@@ -10,6 +11,7 @@ import com.nttdata.agenda.security.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -47,5 +49,9 @@ public class AuthService {
         user.setRole(role);
 
         userRepository.save(user);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }

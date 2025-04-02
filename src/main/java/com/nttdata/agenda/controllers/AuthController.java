@@ -3,11 +3,12 @@ package com.nttdata.agenda.controllers;
 import com.nttdata.agenda.dto.AuthLoginRequest;
 import com.nttdata.agenda.dto.AuthRequest;
 import com.nttdata.agenda.dto.AuthResponse;
+import com.nttdata.agenda.entity.Task;
+import com.nttdata.agenda.entity.User;
 import com.nttdata.agenda.service.AuthService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,4 +29,10 @@ public class AuthController {
     public void register(@RequestBody AuthRequest request) {
         authService.register(request);
     }
+
+    @GetMapping
+    public List<User> getAllTasks() {
+        return authService.getAllUsers();
+    }
+
 }
