@@ -8,6 +8,7 @@ import com.nttdata.agenda.entity.User;
 import com.nttdata.agenda.enums.Role;
 import com.nttdata.agenda.repository.UserRepository;
 import com.nttdata.agenda.security.JwtUtil;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -53,5 +54,22 @@ public class AuthService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("task no encontrado"));
+        User currentUser = getCurrentUser();
+        if (currentUser.getRole() == Role.ADMIN) {
+            userRepository.delete(user);
+        } else {
+            throw new RuntimeException("No tienes autorización para borrar este task");
+        }
+    }
+
+    private User getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 }

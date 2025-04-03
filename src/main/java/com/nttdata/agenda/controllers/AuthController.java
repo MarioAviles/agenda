@@ -31,8 +31,13 @@ public class AuthController {
     }
 
     @GetMapping
-    public List<User> getAllTasks() {
+    public List<User> getAllUsers() {
         return authService.getAllUsers();
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        authService.deleteUser(id);
     }
 
 }

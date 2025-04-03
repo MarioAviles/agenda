@@ -37,13 +37,4 @@ public class JwtUtil {
                 .getSubject();
     }
 
-    public boolean isTokenExpired(String token) { //devuelve si el token ha expirado o no
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration()
-                .before(new Date());
-    }
 }
