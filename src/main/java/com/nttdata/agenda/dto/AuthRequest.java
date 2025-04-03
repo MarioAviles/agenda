@@ -1,6 +1,5 @@
 package com.nttdata.agenda.dto;
 
-import com.nttdata.agenda.entity.Task;
 import com.nttdata.agenda.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;

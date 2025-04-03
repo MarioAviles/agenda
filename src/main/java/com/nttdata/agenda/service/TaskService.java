@@ -25,21 +25,31 @@ public class TaskService {
 
     public List<TaskRequest> getAllTasks() {
         User currentUser = getCurrentUser();
-        if (currentUser.getRole() == Role.ADMIN) {
-            return taskRepository.findAll().stream().map(task -> new TaskRequest(task.getId(), task.getTitle(), task.getDescription(), task.isCompleted(), task.getUser().getId()))
-                    .collect(Collectors.toList());
-        }
-        return taskRepository.findByUserId(currentUser.getId()).stream().map(task -> new TaskRequest(task.getId(), task.getTitle(), task.getDescription(), task.isCompleted(), task.getUser().getId()))
+        List<Task> tasks = currentUser.getRole() == Role.ADMIN
+                ? taskRepository.findAll()
+                : taskRepository.findByUserId(currentUser.getId());
+
+        return tasks.stream()
+                .map(task -> new TaskRequest(
+                        task.getId(),
+                        task.getTitle(),
+                        task.getDescription(),
+                        task.isCompleted(),
+                        task.getUser().getId()))
                 .collect(Collectors.toList());
     }
 
-    public Task createTask(Task task) {
+    public Task createTask(TaskRequest taskRequest) {
         User currentUser = getCurrentUser();
-        task.setUser(currentUser);
+        Task task = new Task();
+        task.setTitle(taskRequest.getTitle());
+        task.setDescription(taskRequest.getDescription());
+        task.setCompleted(taskRequest.isCompleted());
+        task.setUser(currentUser); // Asignar el usuario actual
         return taskRepository.save(task);
     }
 
-    public Task updateTask(Long taskId, Task updatedTask) {
+    public Task updateTask(Long taskId, TaskRequest updatedTask) {
         Task existingTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("No existe un task con ese id"));
         User currentUser = getCurrentUser();
@@ -56,7 +66,7 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("task no encontrado"));
         User currentUser = getCurrentUser();
-        if (task.getUser().equals(currentUser.getId()) || currentUser.getRole() == Role.ADMIN) {
+        if (task.getUser().getId().equals(currentUser.getId()) || currentUser.getRole() == Role.ADMIN) {
             taskRepository.delete(task);
         } else {
             throw new RuntimeException("No tienes autorización para borrar este task");

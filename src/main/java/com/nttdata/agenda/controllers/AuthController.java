@@ -36,8 +36,8 @@ public class AuthController {
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable Long id, @RequestBody AuthRequest authRequest) {
-        return authService.updateUser(id, authRequest);
+    public User updateUser(@PathVariable Long id, @RequestBody AuthRequest user) {
+        return authService.updateUser(id, user);
     }
 
     @DeleteMapping("/{id}")

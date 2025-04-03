@@ -4,7 +4,6 @@ import com.nttdata.agenda.dto.AuthLoginRequest;
 import com.nttdata.agenda.dto.AuthRequest;
 import com.nttdata.agenda.dto.AuthResponse;
 import com.nttdata.agenda.dto.TaskRequest;
-import com.nttdata.agenda.entity.Task;
 import com.nttdata.agenda.entity.User;
 import com.nttdata.agenda.enums.Role;
 import com.nttdata.agenda.repository.TaskRepository;
@@ -59,14 +58,27 @@ public class AuthService {
 
     public List<AuthRequest> getAllUsers() {
         User currentUser = getCurrentUser();
-        if (currentUser.getRole() == Role.ADMIN) {
-            return userRepository.findAll().stream().map(user -> new AuthRequest(user.getId(), user.getUsername(), user.getPassword(), user.getEmail(), user.getRole(), taskRepository.findByUserId(user.getId()).stream().map(task -> new TaskRequest(task.getId(), task.getTitle(), task.getDescription(), task.isCompleted(), task.getUser().getId()))
-                    .collect(Collectors.toList())))
-                    .collect(Collectors.toList());
-        } else {
+
+        if (currentUser.getRole() != Role.ADMIN) {
             throw new RuntimeException("No tienes autorización para mostrar los tasks");
         }
 
+        return userRepository.findAll().stream()
+                .map(user -> new AuthRequest(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getPassword(),
+                        user.getEmail(),
+                        user.getRole(),
+                        taskRepository.findByUserId(user.getId()).stream()
+                                .map(task -> new TaskRequest(
+                                        task.getId(),
+                                        task.getTitle(),
+                                        task.getDescription(),
+                                        task.isCompleted(),
+                                        task.getUser().getId()))
+                                .collect(Collectors.toList())))
+                .collect(Collectors.toList());
     }
 
     public void deleteUser(Long userId) {
