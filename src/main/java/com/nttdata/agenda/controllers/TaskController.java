@@ -1,5 +1,6 @@
 package com.nttdata.agenda.controllers;
 
+import com.nttdata.agenda.dto.TaskRequest;
 import com.nttdata.agenda.entity.Task;
 import com.nttdata.agenda.service.TaskService;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getAllTasks() {
+    public List<TaskRequest> getAllTasks() {
         return taskService.getAllTasks();
     }
 
@@ -35,6 +36,4 @@ public class TaskController {
     public void deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
     }
-
-    //prueba commit
 }

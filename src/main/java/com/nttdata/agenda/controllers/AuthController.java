@@ -31,7 +31,7 @@ public class AuthController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<AuthRequest> getAllUsers() {
         return authService.getAllUsers();
     }
 

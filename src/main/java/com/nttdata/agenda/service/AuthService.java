@@ -3,9 +3,10 @@ package com.nttdata.agenda.service;
 import com.nttdata.agenda.dto.AuthLoginRequest;
 import com.nttdata.agenda.dto.AuthRequest;
 import com.nttdata.agenda.dto.AuthResponse;
-import com.nttdata.agenda.entity.Task;
+import com.nttdata.agenda.dto.TaskRequest;
 import com.nttdata.agenda.entity.User;
 import com.nttdata.agenda.enums.Role;
+import com.nttdata.agenda.repository.TaskRepository;
 import com.nttdata.agenda.repository.UserRepository;
 import com.nttdata.agenda.security.JwtUtil;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,16 +15,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
 
     private final UserRepository userRepository; //llamo a donde se almacenan los usuarios
+    private final TaskRepository taskRepository;
     private final PasswordEncoder passwordEncoder; //llamo al codificador de contraseñas
     private final JwtUtil jwtUtil; //llamo a jwt
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthService(UserRepository userRepository, TaskRepository taskRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.taskRepository = taskRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
@@ -52,8 +56,16 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<AuthRequest> getAllUsers() {
+        User currentUser = getCurrentUser();
+        if (currentUser.getRole() == Role.ADMIN) {
+            return userRepository.findAll().stream().map(user -> new AuthRequest(user.getId(), user.getUsername(), user.getPassword(), user.getEmail(), user.getRole(), taskRepository.findByUserId(user.getId()).stream().map(task -> new TaskRequest(task.getId(), task.getTitle(), task.getDescription(), task.isCompleted(), task.getUser().getId()))
+                    .collect(Collectors.toList())))
+                    .collect(Collectors.toList());
+        } else {
+            throw new RuntimeException("No tienes autorización para mostrar los tasks");
+        }
+
     }
 
     public void deleteUser(Long userId) {

@@ -1,5 +1,6 @@
 package com.nttdata.agenda.service;
 
+import com.nttdata.agenda.dto.TaskRequest;
 import com.nttdata.agenda.entity.Task;
 import com.nttdata.agenda.entity.User;
 import com.nttdata.agenda.enums.Role;
@@ -9,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -21,12 +23,14 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-    public List<Task> getAllTasks() {
+    public List<TaskRequest> getAllTasks() {
         User currentUser = getCurrentUser();
         if (currentUser.getRole() == Role.ADMIN) {
-            return taskRepository.findAll();
+            return taskRepository.findAll().stream().map(task -> new TaskRequest(task.getId(), task.getTitle(), task.getDescription(), task.isCompleted(), task.getUser().getId()))
+                    .collect(Collectors.toList());
         }
-        return taskRepository.findByUserId(currentUser.getId());
+        return taskRepository.findByUserId(currentUser.getId()).stream().map(task -> new TaskRequest(task.getId(), task.getTitle(), task.getDescription(), task.isCompleted(), task.getUser().getId()))
+                .collect(Collectors.toList());
     }
 
     public Task createTask(Task task) {
@@ -58,7 +62,6 @@ public class TaskService {
             throw new RuntimeException("No tienes autorización para borrar este task");
         }
     }
-
 
     private User getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
