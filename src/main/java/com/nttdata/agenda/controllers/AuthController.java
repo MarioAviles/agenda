@@ -35,6 +35,11 @@ public class AuthController {
         return authService.getAllUsers();
     }
 
+    @PutMapping("/{id}")
+    public User updateUser(@PathVariable Long id, @RequestBody AuthRequest authRequest) {
+        return authService.updateUser(id, authRequest);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         authService.deleteUser(id);

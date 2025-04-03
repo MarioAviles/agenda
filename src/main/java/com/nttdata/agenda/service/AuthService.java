@@ -4,6 +4,7 @@ import com.nttdata.agenda.dto.AuthLoginRequest;
 import com.nttdata.agenda.dto.AuthRequest;
 import com.nttdata.agenda.dto.AuthResponse;
 import com.nttdata.agenda.dto.TaskRequest;
+import com.nttdata.agenda.entity.Task;
 import com.nttdata.agenda.entity.User;
 import com.nttdata.agenda.enums.Role;
 import com.nttdata.agenda.repository.TaskRepository;
@@ -77,6 +78,21 @@ public class AuthService {
         } else {
             throw new RuntimeException("No tienes autorización para borrar este task");
         }
+    }
+
+    public User updateUser(Long userId, AuthRequest authRequest) {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("No existe un task con ese id"));
+        User currentUser = getCurrentUser();
+
+        if (existingUser.getId().equals(currentUser.getId()) || currentUser.getRole() == Role.ADMIN) {
+
+            existingUser.setUsername(authRequest.getUsername());
+            existingUser.setPassword(authRequest.getPassword());
+            existingUser.setEmail(authRequest.getEmail());
+            return userRepository.save(existingUser);
+        }
+        throw new RuntimeException("No tienes autorización para actualizar este task");
     }
 
     private User getCurrentUser() {
