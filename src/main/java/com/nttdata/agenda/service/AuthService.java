@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,10 +51,19 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
 
-        Role role = (request.getRole() == null || request.getRole().describeConstable().isEmpty()) ? Role.USER : request.getRole();
-        user.setRole(role);
+        Role role = (request.getRole() == null || request.getRole().describeConstable().isEmpty())
+                ? Role.USER
+                : Role.fromValue(request.getRole().name());
 
+        if (Arrays.stream(Role.values()).anyMatch(r -> r.name().equalsIgnoreCase(role.name()))) {
+            user.setRole(role);
+        } else {
+            System.out.println("Valor recibido: " + request.getRole().name());
+        }
+
+// Guarda el usuario
         userRepository.save(user);
+
     }
 
     public List<AuthRequest> getAllUsers() {
